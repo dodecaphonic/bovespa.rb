@@ -1,6 +1,8 @@
 require 'nokogiri'
 
 module Bovespa
+  class InvalidStockError < StandardError; end
+
   class Quote
     attr_accessor :stock, :price, :oscilation, :volume
 
@@ -20,17 +22,21 @@ module Bovespa
     def parse(raw_data)
       doc = Nokogiri::HTML(raw_data)
 
-      table = doc.search("#tbCotacoesInfo")
-      stock = table.search("th.tdValor").shift.content.sub(/^#/, '')
+      if !doc.search("#msgErro").empty?
+        raise InvalidStockError
+      else
+        table = doc.search("#tbCotacoesInfo")
+        stock = table.search("th.tdValor").shift.content.sub(/^#/, '')
 
-      price, oscilation, volume = table.search("td.tdValor").map { |td|
-        td.content.strip
-      }
+        price, oscilation, volume = table.search("td.tdValor").map { |td|
+          td.content.strip
+        }
 
-      price  = price.scan(/\d+/).join(".").to_f
-      volume = volume.sub('.', '').to_i
+        price  = price.scan(/\d+/).join(".").to_f
+        volume = volume.sub('.', '').to_i
 
-      Quote.new stock, price, oscilation, volume
+        Quote.new stock, price, oscilation, volume
+      end
     end
   end
 end

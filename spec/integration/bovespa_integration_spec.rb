@@ -1,10 +1,19 @@
 describe Bovespa::Engine do
+  before :each do
+    @bovespa = Bovespa::Engine.new
+  end
+
   it "goes out on the net and gets a Quote for VALE5" do
-    bovespa = Bovespa::Engine.new
-    quote   = bovespa.quote_for("VALE5")
+    quote = @bovespa.quote_for("VALE5")
 
     quote.should_not be_nil
     quote.stock.should == "VALE5"
+  end
+
+  it "raises InvalidStockError when passed an inexistent stock name" do
+    lambda {
+      @bovespa.quote_for "CACA4"
+    }.should raise_exception(Bovespa::InvalidStockError)
   end
 end
 
