@@ -1,10 +1,10 @@
-describe Bovespa do
+describe Bovespa::Engine do
   it "receives a stock name and returns a Quote object" do
     data    = File.open(File.join(File.dirname(__FILE__), 'vale5.html'))
-    bovespa = Bovespa.new
+    bovespa = Bovespa::Engine.new
 
     Net::HTTP.should_receive(:get).
-      with(URI.parse(Bovespa::BASE_URL % ["VALE5"])).
+      with(URI.parse(Bovespa::Engine::BASE_URL % ["VALE5"])).
       and_return data
 
     quote   = bovespa.quote_for("VALE5")
